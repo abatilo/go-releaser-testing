@@ -10,6 +10,11 @@ builds:
 - env:
   - CGO_ENABLED=0
   main: ./cmd/hello/main.go
+  binary: hello
+- env:
+  - CGO_ENABLED=0
+  main: ./cmd/goodbye/main.go
+  binary: goodbye
 archives:
 - replacements:
     darwin: Darwin
