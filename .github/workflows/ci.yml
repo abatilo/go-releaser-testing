@@ -35,12 +35,29 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh
-        goreleaser release
-    # - name: Run GoReleaser
-    #   uses: goreleaser/goreleaser-action@v1
-    #   with:
-    #     version: latest
-    #     args: release
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #     GITHUB_REF
+        ./bin/goreleaser release
+  goreleaser:
+    needs: [tag]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Go
+      uses: actions/setup-go@v1
+      with:
+        go-version: '1.13'
+    - name: Get Latest Release
+      uses: abatilo/release-info-action@v1.0.0
+      id: release-info
+      with:
+        owner: abatilo
+        repo: go-releaser-testing
+    - uses: actions/checkout@master
+      with:
+        ref: ${{ steps.release-info.outputs.latest_tag }}
+    - name: Run GoReleaser
+      uses: goreleaser/goreleaser-action@v1
+      with:
+        version: latest
+        args: release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_REF
