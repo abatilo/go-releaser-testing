@@ -14,28 +14,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: npx semantic-release
-  # goreleaser:
-  #   needs: [tag]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - name: Set up Go
-  #     uses: actions/setup-go@v1
-  #     with:
-  #       go-version: '1.13'
-  #   - name: Get Latest Release
-  #     uses: abatilo/release-info-action@v1.0.0
-  #     id: release-info
-  #     with:
-  #       owner: abatilo
-  #       repo: go-releaser-testing
-  #   - uses: actions/checkout@master
-  #     with:
-  #       ref: ${{ steps.release-info.outputs.latest_tag }}
-  #   - env:
-  #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #     run: |
-  #       curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh
-  #       ./bin/goreleaser release
   goreleaser:
     needs: [tag]
     runs-on: ubuntu-latest
@@ -53,8 +31,10 @@ jobs:
     - uses: actions/checkout@master
       with:
         ref: ${{ steps.release-info.outputs.latest_tag }}
-    - run: |
-        echo "::set-env name=GITHUB_REF::${GITHUB_REF}"
+    - env:
+        TAG_REF: refs/tags/${{ steps.release-info.outputs.latest_tag }}
+      run: |
+        echo "::set-env name=GITHUB_REF::${TAG_REF}"
     - name: Run GoReleaser
       uses: goreleaser/goreleaser-action@v1
       with:
