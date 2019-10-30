@@ -1,11 +1,11 @@
 name: GoReleaser
 on:
-  release:
-  create:
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   goreleaser:
-    needs: [tag]
     runs-on: ubuntu-latest
     steps:
     - name: Set up Go
