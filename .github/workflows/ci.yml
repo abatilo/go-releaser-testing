@@ -29,12 +29,6 @@ jobs:
         owner: abatilo
         repo: go-releaser-testing
     - uses: actions/checkout@master
-      with:
-        ref: ${{ steps.release-info.outputs.latest_tag }}
-    - env:
-        TAG_REF: refs/tags/${{ steps.release-info.outputs.latest_tag }}
-      run: |
-        echo "::set-env name=GITHUB_REF::${TAG_REF}"
     - name: Run GoReleaser
       uses: goreleaser/goreleaser-action@v1
       with:
@@ -42,3 +36,4 @@ jobs:
         args: release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_REF: "refs/tags/${{ steps.release-info.outputs.latest_tag }}"
