@@ -53,6 +53,8 @@ jobs:
     - uses: actions/checkout@master
       with:
         ref: ${{ steps.release-info.outputs.latest_tag }}
+    - run: |
+        echo "::set-env name=GITHUB_REF::${GITHUB_REF}"
     - name: Run GoReleaser
       uses: goreleaser/goreleaser-action@v1
       with:
@@ -60,4 +62,3 @@ jobs:
         args: release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GITHUB_REF
