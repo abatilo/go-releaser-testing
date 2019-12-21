@@ -10,7 +10,7 @@ jobs:
       with:
         node-version: '10.x'
     - run: |
-      npm install semantic-release@15.13.31
+        npm install semantic-release@15.13.31
     - name: Generate release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
