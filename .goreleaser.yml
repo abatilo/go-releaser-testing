@@ -1,16 +1,14 @@
-builds:
-- env:
+env:
   - CGO_ENABLED=0
-  goos:
+builds:
+- goos:
     - linux
     - darwin
     - windows
   main: ./cmd/hello/main.go
   binary: hello
   id: 'build-hello'
-- env:
-  - CGO_ENABLED=0
-  goos:
+- goos:
     - linux
     - darwin
     - windows
