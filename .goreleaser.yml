@@ -1,10 +1,21 @@
 env:
   - CGO_ENABLED=0
+archives:
+  - name_template: '{{ .ProjectName }}-{{ .Version }}-{{ .Os }}{{ end }}'
+    replacements:
+      darwin: mac
+      linux: linux
+      windows: win64
+    format_overrides:
+    - goos: windows
+      format: zip
 builds:
 - goos:
     - linux
     - darwin
     - windows
+  goarch:
+    - amd64
   main: ./cmd/hello/main.go
   binary: hello
   id: 'build-hello'
@@ -12,6 +23,8 @@ builds:
     - linux
     - darwin
     - windows
+  goarch:
+    - amd64
   main: ./cmd/goodbye/main.go
   binary: goodbye
   id: 'build-goodbye'
