@@ -1,7 +1,7 @@
 env:
   - CGO_ENABLED=0
 archives:
-  - name_template: '{{ .ProjectName }}-{{ .Version }}-{{ .Os }}{{ end }}'
+  - name_template: '{{ .ProjectName }}-{{ .Version }}-{{ .Os }}'
     replacements:
       darwin: mac
       linux: linux
