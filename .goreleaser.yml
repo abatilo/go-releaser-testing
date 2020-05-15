@@ -1,14 +1,7 @@
 env:
   - CGO_ENABLED=0
 archives:
-  - name_template: '{{ .ProjectName }}-{{ .Version }}-{{ .Os }}'
-    replacements:
-      darwin: mac
-      linux: linux
-      windows: win64
-    format_overrides:
-    - goos: windows
-      format: zip
+  format: binary
 builds:
 - goos:
     - linux
