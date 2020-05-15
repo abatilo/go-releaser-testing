@@ -1,7 +1,7 @@
 env:
   - CGO_ENABLED=0
 archives:
-  format: binary
+  - format: binary
 builds:
 - goos:
     - linux
