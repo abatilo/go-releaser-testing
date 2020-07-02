@@ -1,6 +1,6 @@
 {
   "branches": [
-    { name: 'other' },
+    { name: 'master' },
     { name: 'main', prerelease: true }
   ],
   "plugins": [
