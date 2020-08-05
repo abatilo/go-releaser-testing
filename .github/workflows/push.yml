@@ -1,6 +1,8 @@
 name: CI
 on:
-  push
+  push:
+  workflow_dispatch:
+  
 
 jobs:
   tag:
@@ -11,7 +13,15 @@ jobs:
       uses: actions/setup-go@v1
       with:
         go-version: '1.13'
+        
+        
+    - name: Generate pre-release
+      if: github.event_name == 'push'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: npx semantic-release
     - name: Generate release
+      if: github.event_name == 'workflow_dispatch'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: npx semantic-release --branches "main"
