@@ -10,6 +10,26 @@ jobs:
     env:
       IMAGE_NAME: go-releaser-testing
     steps:
+    - name: Get token
+      id: get_token
+      uses: machine-learning-apps/actions-app-token@master
+      with:
+        APP_PEM: ${{ secrets.PRIVATE_KEY }}
+        APP_ID: ${{ secrets.APP_ID }}
+
+    - name: Get App Installation Token
+      run: |
+        echo "This token is masked: ${TOKEN}"
+      env: 
+        TOKEN: ${{ steps.get_token.outputs.app_token }}
+        
+    - name: Log into GitHub Container Registry
+      env:
+        CR_TOKEN: ${{ steps.get_token.outputs.app_token }}
+      run: echo "${{ secrets.CR_TOKEN }}" | docker login https://ghcr.io -u ${GITHUB_ACTOR} --password-stdin
+        
+        
+        
     - uses: actions/checkout@master
     - name: Set up Go
       uses: actions/setup-go@v1
@@ -34,10 +54,7 @@ jobs:
   
     - name: Build image
       run: docker build . --file Dockerfile --tag $IMAGE_NAME
-    - name: Log into GitHub Container Registry
-      env:
-        CR_TOKEN: ${{ steps.generate_token.outputs.token }}
-      run: echo "${{ secrets.CR_TOKEN }}" | docker login https://ghcr.io -u ${GITHUB_ACTOR} --password-stdin
+
     - name: Log into GitHub Container Registry
       if: failure()
       env:
