@@ -7,6 +7,8 @@ on:
 jobs:
   tag:
     runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: go-releaser-testing
     steps:
     - uses: actions/checkout@master
     - name: Set up Go
@@ -25,3 +27,33 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: npx semantic-release --branches "main"
+    - name: Example of consumption of the output
+      env:
+        VERSION: ${{ steps.latest_version.outputs.latest_tag }}
+      run: |
+        echo "Version $LATEST"
+      
+    - name: Build image
+      run: docker build . --file Dockerfile --tag $IMAGE_NAME
+    - name: Log into GitHub Container Registry
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
+    - name: Push image to GitHub Container Registry
+      env:
+        VERSION: ${{ steps.latest_version.outputs.latest_tag }}
+      run: |
+        IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+
+        # Change all uppercase to lowercase
+        IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+
+        # Strip git ref prefix from version
+        VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+        # Strip "v" prefix from tag name
+        VERSION=$(echo $VERSION | sed -e 's/^v//')
+
+        echo IMAGE_ID=$IMAGE_ID
+        echo VERSION=$VERSION
+
+        docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+        docker push $IMAGE_ID:$VERSION
