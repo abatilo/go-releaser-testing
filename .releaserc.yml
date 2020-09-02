@@ -1,10 +1,5 @@
 branches:
-  # We can't only have a prerelease branch, so we need to list a default branch
-  # here. We override "main" from being a prerelease branch with a CLI flag in
-  # the GitHub action.
-  - name: "master"
   - name: "main"
-    prerelease: true
 plugins:
   - "@semantic-release/commit-analyzer"
   - "@semantic-release/release-notes-generator"
