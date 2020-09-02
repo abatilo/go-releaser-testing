@@ -10,28 +10,28 @@ jobs:
     env:
       IMAGE_NAME: go-releaser-testing
     steps:
-    - name: Get token
-      id: get_token
-      uses: machine-learning-apps/actions-app-token@master
+    - name: Generate token
+      id: generate_token
+      uses: tibdex/github-app-token@v1
       with:
-        APP_PEM: ${{ secrets.PRIVATE_KEY }}
-        APP_ID: ${{ secrets.APP_ID }}
+        app_id: ${{ secrets.APP_ID }}
+        private_key: ${{ secrets.PRIVATE_KEY }}
 
     - name: Get App Installation Token
       run: |
         echo "This token is masked: ${TOKEN}"
       env: 
-        TOKEN: ${{ steps.get_token.outputs.app_token }}
+        TOKEN: ${{ steps.generate_token.outputs.token }}
         
     - name: Log into GitHub Container Registry
       env:
-        CR_TOKEN: ${{ steps.get_token.outputs.app_token }}
+        CR_TOKEN: ${{ steps.generate_token.outputs.token }}
       run: echo "${{ secrets.CR_TOKEN }}" | docker login https://ghcr.io -u ${GITHUB_ACTOR} --password-stdin
         
     - name: Log into GitHub Container Registry
       if: failure()
       env:
-        CR_TOKEN: ${{ steps.get_token.outputs.app_token }}
+        CR_TOKEN: ${{ steps.generate_token.outputs.token }}
       run: echo "${{ secrets.CR_TOKEN }}" | docker login https://ghcr.io -u abatilo-bot --password-stdin
         
         
