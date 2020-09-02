@@ -26,13 +26,13 @@ jobs:
     - name: Log into GitHub Container Registry
       env:
         CR_TOKEN: ${{ steps.generate_token.outputs.token }}
-      run: echo "${{ secrets.CR_TOKEN }}" | docker login https://ghcr.io -u ${GITHUB_ACTOR} --password-stdin
+      run: echo "${CR_TOKEN}" | docker login https://ghcr.io -u ${GITHUB_ACTOR} --password-stdin
         
     - name: Log into GitHub Container Registry
       if: failure()
       env:
         CR_TOKEN: ${{ steps.generate_token.outputs.token }}
-      run: echo "${{ secrets.CR_TOKEN }}" | docker login https://ghcr.io -u abatilo-bot --password-stdin
+      run: echo "${CR_TOKEN}" | docker login https://ghcr.io -u abatilo-bot --password-stdin
         
         
     - uses: actions/checkout@master
