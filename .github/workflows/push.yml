@@ -33,4 +33,4 @@ jobs:
       - env:
           TOKEN: ${{ steps.generate_token.outputs.token }}
         run: |
-          docker build --build-arg TOKEN=${TOKEN} -t private .
+          docker build --build-arg TOKEN=${TOKEN} .
