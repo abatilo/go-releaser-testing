@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  tag:
+  ci:
     runs-on: ubuntu-latest
     env:
       GOPRIVATE: github.com/abatilo
@@ -30,6 +30,7 @@ jobs:
       - run: |
           go run main.go
 
+      - uses: satackey/action-docker-layer-caching@v0.0.8
       - env:
           TOKEN: ${{ steps.generate_token.outputs.token }}
         run: |
