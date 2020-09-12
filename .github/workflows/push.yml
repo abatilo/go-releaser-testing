@@ -2,77 +2,30 @@ name: CI
 on:
   push:
   workflow_dispatch:
-  
 
 jobs:
   tag:
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: go-releaser-testing
+      GOPRIVATE: github.com/abatilo
     steps:
-    - name: Generate token
-      id: generate_token
-      uses: tibdex/github-app-token@v1
-      with:
-        app_id: ${{ secrets.APP_ID }}
-        private_key: ${{ secrets.PRIVATE_KEY }}
+      - name: Generate token
+        id: generate_token
+        uses: tibdex/github-app-token@v1
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.PRIVATE_KEY }}
 
-    - name: Get App Installation Token
-      run: |
-        echo "This token is masked: ${TOKEN}"
-      env: 
-        TOKEN: ${{ steps.generate_token.outputs.token }}
-        
-        
-            
-    - name: Log into GitHub Container Registry
-      run: echo "${{ secrets.PAT }}" | docker login https://ghcr.io -u ${GITHUB_ACTOR} --password-stdin
-        
-    - name: Log into GitHub Container Registry
-      if: always()
-      run: echo "${{ steps.generate_token.outputs.token }}" | docker login https://ghcr.io -u ${GITHUB_ACTOR} --password-stdin
-        
-    - name: Log into GitHub Container Registry
-      if: always()
-      run: echo "${{ steps.generate_token.outputs.token }}" | docker login https://ghcr.io -u abatilo-bot --password-stdin
-        
-        
-    - uses: actions/checkout@master
-    - name: Set up Go
-      uses: actions/setup-go@v1
-      with:
-        go-version: '1.13'
-    - name: Generate release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: npx semantic-release
-    - name: Example of consumption of the output
-      env:
-        VERSION: ${{ steps.latest_version.outputs.latest_tag }}
-      run: |
-        echo "Version $VERSION"
-  
-    - name: Build image
-      run: docker build . --file Dockerfile --tag $IMAGE_NAME
+      - name: Granting private modules access
+        env:
+          TOKEN: ${{ steps.generate_token.outputs.token }}
+        run: |
+          git config --global url."https://${TOKEN}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
 
-      
-    - name: Push image to GitHub Container Registry
-      env:
-        VERSION: ${{ steps.latest_version.outputs.latest_tag }}
-      run: |
-        IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+      - uses: actions/setup-go@v2
+        with:
+          go-version: "^1.15.0"
 
-        # Change all uppercase to lowercase
-        IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-
-        # Strip git ref prefix from version
-        VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-
-        # Strip "v" prefix from tag name
-        VERSION=$(echo $VERSION | sed -e 's/^v//')
-
-        echo IMAGE_ID=$IMAGE_ID
-        echo VERSION=$VERSION
-
-        docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-        docker push $IMAGE_ID:$VERSION
+      - uses: actions/checkout@v2
+      - run: |
+          go run main.go
