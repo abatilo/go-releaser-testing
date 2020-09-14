@@ -10,47 +10,52 @@ jobs:
       GOPRIVATE: github.com/abatilo
       GOFLAGS: -mod=vendor
     steps:
-      - name: Generate token
-        id: generate_token
-        uses: tibdex/github-app-token@v1
-        with:
-          app_id: ${{ secrets.APP_ID }}
-          private_key: ${{ secrets.PRIVATE_KEY }}
-
+      - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
         with:
           go-version: "^1.15.0"
-          
-      - uses: actions/cache@v2
-        with:
-          path: vendor
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      - name: Authenticate private dependencies
-        env:
-          TOKEN: ${{ steps.generate_token.outputs.token }}
-        run: |
-          git config --global url."https://x-access-token:${TOKEN}@github.com/abatilo".insteadOf "https://github.com/abatilo"
-
-      - uses: actions/checkout@v2
-      - run: |
-          go mod vendor
-          go run main.go
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
 
       - name: Cache Docker layers
+        id: cache-docker
         uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
+      - name: Cache go dependencies
+        id: cache-vendor
+        uses: actions/cache@v2
+        with:
+          path: vendor
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Authenticate
+        if: steps.cache-vendor.outputs.cache-hit != 'true'
+        id: generate_token
+        uses: tibdex/github-app-token@v1
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.PRIVATE_KEY }}
+      - name: Download private dependencies
+        if: steps.cache-vendor.outputs.cache-hit != 'true'
+        env:
+          TOKEN: ${{ steps.generate_token.outputs.token }}
+        run: |
+          git config --global url."https://x-access-token:${TOKEN}@github.com/abatilo".insteadOf "https://github.com/abatilo"
+          go mod vendor
+
+      - run: |
+          go run main.go
+
+      - name: Set up Docker Buildx
+        if: steps.cache-docker.outputs.cache-hit != 'true'
+        uses: docker/setup-buildx-action@v1
 
       - name: Build and push
+        if: steps.cache-docker.outputs.cache-hit != 'true'
         uses: docker/build-push-action@v2
         with:
           push: false
