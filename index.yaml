@@ -3,6 +3,19 @@ entries:
   foo:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2020-09-18T11:38:23.182906681Z"
+    description: A Helm chart for Kubernetes
+    digest: c1bee7da81dbf13f8e7321bd60da9f66bb00c5a989800e773bfb56025684f0ba
+    keywords:
+    - abatilo
+    - nginx
+    name: foo
+    type: application
+    urls:
+    - https://github.com/abatilo/go-releaser-testing/releases/download/foo-0.1.1/foo-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2020-09-18T11:32:56.980291481Z"
     description: A Helm chart for Kubernetes
     digest: 7bcabf2eff458837e46c4a594a0fc8621c32bdd8a60d4a5e320a6ec7d098c090
