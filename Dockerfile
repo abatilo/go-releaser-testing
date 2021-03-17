@@ -4,4 +4,3 @@ ARG TOKEN
 
 WORKDIR /app
 COPY . .
-RUN go run main.go
