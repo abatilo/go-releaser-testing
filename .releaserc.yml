@@ -1,5 +1,5 @@
 branches:
-  - name: "notreal"
+  - name: "master"
   - name: "main"
     prerelease: true
 plugins:
