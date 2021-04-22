@@ -9,78 +9,14 @@ jobs:
     env:
       GOPRIVATE: github.com/abatilo
       GOFLAGS: -mod=vendor
+    strategy:
+      matrix:
+        include:
+          - foo: bar
+            bing: baz
+          - foo: boop
+            bing: beep
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-go@v2
-        with:
-          go-version: "^1.15.0"
-
-      - name: Cache Docker layers
-        id: cache-docker
-        uses: actions/cache@v2
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-      - name: Cache go dependencies
-        id: cache-vendor
-        uses: actions/cache@v2
-        with:
-          path: vendor
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      - name: Authenticate
-        if: steps.cache-vendor.outputs.cache-hit != 'true'
-        id: generate_token
-        uses: tibdex/github-app-token@v1
-        with:
-          app_id: ${{ secrets.APP_ID }}
-          private_key: ${{ secrets.PRIVATE_KEY }}
-      - name: Download private dependencies
-        if: steps.cache-vendor.outputs.cache-hit != 'true'
-        env:
-          TOKEN: ${{ steps.generate_token.outputs.token }}
-        run: |
-          git config --global url."https://x-access-token:${TOKEN}@github.com/abatilo".insteadOf "https://github.com/abatilo"
-          go mod vendor
-
       - run: |
-          go run main.go
-
-      - name: Set up Docker Buildx
-        if: steps.cache-docker.outputs.cache-hit != 'true'
-        uses: docker/setup-buildx-action@v1
-
-      - name: Build and push
-        if: steps.cache-docker.outputs.cache-hit != 'true'
-        uses: docker/build-push-action@v2
-        with:
-          push: false
-          tags: user/app:latest
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
-
-      # Cache global dependencies that get installed when running npx
-      - uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-semantic-release
-      - name: Create release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          npx semantic-release
-      
-      - name: Generate pre-release
-        if: github.event_name == 'push'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
-      - name: Generate release
-        if: github.event_name == 'workflow_dispatch'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release --branches "main"
+          echo ${{ matrix.foo }}
+          echo ${{ matrix.bing }}
