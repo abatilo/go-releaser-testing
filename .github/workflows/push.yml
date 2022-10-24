@@ -4,13 +4,20 @@ on:
   workflow_dispatch:
 
 jobs:
-  one:
+  release:
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          echo $GITHUB_RUN_ID
-  two:
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo $GITHUB_RUN_ID
+      - uses: actions/checkout@v3
+
+      - name: Generate release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v1
+        with:
+          version: latest
+          args: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
