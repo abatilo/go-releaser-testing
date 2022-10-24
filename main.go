@@ -1,7 +1,7 @@
 package main
 
-import "github.com/abatilo/private-dependency"
+import "fmt"
 
 func main() {
-	private.Foo()
+	fmt.Println("Hello")
 }
